@@ -155,3 +155,9 @@ if !exists('g:taskwiki_suppress_mappings')
         vnoremap <silent><buffer> <LocalLeader>+ :TaskWikiStart<CR>
         vnoremap <silent><buffer> <LocalLeader>- :TaskWikiStop<CR>
 endif
+
+command! -range TaskWikiFollowLink :<line1>,<line2>py3 SelectedTasks().follow_link()
+" Leader-related mappings. Mostly <Leader>t + <first letter of the action>
+nmap <silent><buffer> <Leader>tf :TaskWikiFollowLink<CR>
+" Mappings for visual mode.
+vmap <silent><buffer> <Leader>tf :TaskWikiFollowLink<CR>

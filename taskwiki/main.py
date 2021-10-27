@@ -89,6 +89,21 @@ class SelectedTasks(object):
     def save_action(cls, method, *args):
         cls.last_action = {'method': method, 'args': args}
 
+    def follow_link(self):
+        for vimwikitask in self.tasks:
+#            print("Follow first link of task \"{0}\".".format(vimwikitask['description']))
+            for annotation in vimwikitask['annotations']:
+                description = annotation["description"]
+                if ( description.startswith("wiki:")):
+                    file = description[5:].strip()
+                    if (util.get_absolute_filepath() != util.expand_path_user(file)):
+#                        print ("Opening wiki file\"{0}\".\n".format(file))
+                        vim.command("edit {0}".format(file))
+                        return True
+            break # Only one task should be followed
+#        print ("No link to follow.")
+        return False
+
     @errors.pretty_exception_handler
     def annotate(self, annotation):
         if not annotation:
@@ -154,7 +169,8 @@ class SelectedTasks(object):
         port = viewport.ViewPort.find_closest(cache())
         if port:
             vim.command("TW rc:{0} rc.context: {1}"
-                        .format(port.tw.taskrc_location, port.raw_filter))
+                        .format(port.tw.taskrc_location, port.raw_filter)
+                        .replace('(', '').replace(')', ''))
         else:
             print("No viewport detected.", file=sys.stderr)
 
@@ -307,7 +323,8 @@ class Mappings(object):
 
         # No link detected, check for viewport or a task
         if cache().vwtask[row] is not None:
-            SelectedTasks().info()
+            if not SelectedTasks().follow_link():
+                SelectedTasks().info()
             return
         else:
             port = viewport.ViewPort.from_line(row, cache())

@@ -177,6 +177,9 @@ def convert_colorstring_for_vim(string):
 
     return result
 
+def expand_path_user(filepath):
+    return os.path.expanduser(filepath)
+
 def get_buffer_shortname():
     return vim.eval('expand("%")')
 

@@ -165,9 +165,16 @@ class VimwikiTask(object):
         if self.parent:
             self.parent.add_dependencies |= set([self])
 
-        # For new tasks, apply defaults from above viewport
-        if not self.uuid:
+        from taskwiki import viewport
+
+        # For new tasks, or tasks which have only just been moved to this section, apply defaults from above viewport
+        #print(self['line_number'])
+        #print(viewport.ViewPort.from_line(self['line_number'], self.cache))
+        #print(viewport.ViewPort.from_line(number, self.cache).viewport_tasks)
+        if False or not self.uuid:
             self.apply_defaults()
+
+        if not self.uuid:
 
             # If -- is in description, assume it's separator for metadata
             # * [ ] this is new task -- project:home
@@ -360,6 +367,13 @@ class VimwikiTask(object):
                     return self.cache.vwtask[i]
                 else:
                     return None
+
+    def find_header_viewport(self):
+        for i in reversed(range(0, self['line_number'])):
+            result = preset.PresetHeader.from_line(i, self.cache) or viewport.ViewPort.from_line(i, self.cache)
+            if result:
+                return result
+        return None
 
     def apply_defaults(self):
         from taskwiki import viewport, preset
